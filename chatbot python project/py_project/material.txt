@@ -1,0 +1,6 @@
+Radius is the distance between the center and the farthest point of any class.
+Each feature has to be weighted.
+Vectors of features and weights have the same dimensionality.
+We do not need to initialize weights as zeros, because there are no restrictions in further calculations.
+After this step the weights can be updated.
+The bigger margin easier for PLA to separate the classes.
