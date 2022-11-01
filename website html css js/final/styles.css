@@ -1,0 +1,150 @@
+.main{
+    margin-right: 5%;
+    margin-left: 5%;
+    text-align: center;
+    padding-bottom: 200px;
+    background: rgba(237, 237, 237);
+}
+h1{
+    font-size: 90px;
+    font-weight: 900;
+    font-family: 'Merriweather', sans-serif;
+    color: rgb(255, 255, 255);
+    background-color: rgb(58, 14, 90);
+    background-size: 100;
+    text-align: center;
+    padding-top: 30;
+    padding-bottom: 30;    
+}
+
+h2{
+    font-family: 'Merriweather', sans-serif;
+    font-size: 50px;
+    font-weight: 700;
+    color: rgb(58, 14, 90);    
+}
+
+h3{
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'Merriweather', sans-serif;
+    color: rgb(22, 1, 27);
+}
+
+h4{
+    font-size: small;
+    font-weight: 300;
+    font-family: 'Merriweather', sans-serif;
+    color: rgb(0, 0, 0);
+    
+}
+ul {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+    margin-top:25;
+    height: 50;
+  }
+a {
+    text-decoration: none;
+    color: rgb(58, 14, 90);
+    padding: 0 15;
+    line-height:50px;
+    display: block; 
+    border-left: 1px solid rgba(58, 14, 90, 0.4);
+
+}
+li {
+    float:right;
+ }
+
+ .logo{
+    
+    width: 70%;
+ }
+ .news{
+    border-radius: 10%;
+    width: 100%;
+ }
+.enter {
+    margin-top: 20;
+    margin-right: 10;
+    width: 100px; 
+    height:50px;
+    background-color: rgb(58, 14, 90);
+    font-family: 'Merriweather', sans-serif;
+    color: rgb(255, 255, 255);
+}
+.tablebut {
+    width: 65;
+    height: 50;
+    background-color: rgb(255, 255, 255);
+    color:rgb(58, 14, 90);
+    border: 0;
+    font-family: 'Merriweather', sans-serif;
+}
+.cancel {
+    margin-top: 50;
+    width: 150px; 
+    height:30px;
+    color: rgb(58, 14, 90);
+    font-family: 'Merriweather', sans-serif;
+    background-color: rgba(58, 14, 90, .2);
+}
+.calen {
+    height: 400px;
+    
+
+}
+.pAbout {
+    font-family: 'Merriweather', sans-serif;
+    font-size: 22px;
+}
+.shop {
+    height: 300px;
+    padding: 10%;
+}
+.logo_anim {
+    animation-duration: 1s;
+    animation-name: pulse;
+    animation-iteration-count: infinite;
+ }
+.sign_anim {
+    animation-duration: 6s;
+    animation-iteration-count: infinite;
+    animation-name: flash;
+ }
+ @keyframes flash {
+    0%{
+        opacity: 0;
+      }
+    
+      30% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+  }
+ .but_shop_anim {
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-name: wobble;
+ }
+ @keyframes wobble {
+    0%{
+        opacity: 0;
+      }
+    
+      30% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+  }
+  
+  @media only screen and (max-width: 1024px) and (orientation: portrait) {
+    .logo { width: 40%; }
+    .news {width: 40%;}
+  }

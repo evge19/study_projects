@@ -1,0 +1,1 @@
+To see the website open index.html file only. The index page redirects automatically to the homepage of the website.
