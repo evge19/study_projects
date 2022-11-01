@@ -1,0 +1,313 @@
+---
+title: "Used car website applications analysis"
+#author: "Evgeniya Zakharova"
+#date: "14 03 2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+Sales forecasting and market trends prediction are one of the most popular topics nowadays for sellers and buyers. The modeling may help to reduce time for price definition and rely on algorithms. Moreover, it is possible to understand which characteristics influence the most. At this report the used car sales are explored to see the trends, demand and what features influence on the price the most.
+
+# Data analysis
+## Dataset overview
+Car market is in demand now. There are also websites for used vehicles. Thus, the website drom.ru proposes the services for people, who would like to sell their cars. The data contains the information about the applications from Ekaterinburg city (Russia). The closer overview of the dataset follows. There is a structure of the data:
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T}
+setwd("C:/r/report")
+library("tidyverse")
+library(ggplot2)
+library(grid)
+library(gridExtra)
+theme_set(theme_minimal())
+ds<-read.csv("dromset.csv",encoding = "UTF-8")
+drom<- ds %>% select(firm, model,drive,frame_type,generation_number, year,restyling_number, mileage,transmission,engine_power, steering_wheel, fuel_type, volume, ownership_periods, price)
+str(drom)
+```
+
+
+The data contains cars\` features, price, owners\` comments and specific information for the website. Some values are missing, but only few, therefore it is possible to continue the analysis. One of the rows, which has all the information:
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T}
+
+drom[1,]
+
+```
+## Prelimenary analysis
+
+The dataset has been checked for unknowns and wrong data. They have been changed on NAs.
+The price is in rubles, a new column in euros has been added. Thus, the minimum, maximum and average values of price in euros were found.
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.width=6,fig.height=3}
+
+drom<-drom %>% mutate(price_euro=round(price/88, d=0))
+drom %>% summarise(average=mean(price_euro), max=max(price_euro), min=min(price_euro))
+
+```
+
+The side of steering wheel was considered separately. The T- and F-tests were applied to see, how these two categories differ from each other. P-values show, that mean and variance differ significantly, because they are less than 0.05. It is explained by high demand on left-side steering wheels and low diversity of right side steering wheel cars.
+
+```{r, eval = T, echo=FALSE}
+
+left<-drom %>% filter(steering_wheel=='left')
+right<-drom %>% filter(steering_wheel=='right')
+var.test(left$price_euro, right$price_euro)
+t.test(left$price_euro, right$price_euro, paired = F, alternative = "two.sided") 
+```
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.width=6,fig.height=2.5}
+
+par(mfrow=c(1,2)) 
+hist(drom$price_euro, main = "Price distribution", xlab="Price")
+log(drom$price_euro) %>% hist(main = "Log of price distribution", xlab=" log of Price")
+
+
+```
+
+
+The left histogram shows, that the most cars (`r drom %>% filter(price_euro<=25000)%>% tally()`) cost 25 thousand euro or less, however, there are `r drom %>% filter(price_euro>=25000)%>% tally()`, which shift the mean. After the log function transformation the histogram (right) has changed to a normal distribution. Therefore it may be Poisson distribution.
+
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.width=4,fig.height=2.6}
+
+owner<- drom %>% select( year, mileage, price)
+corMat <- round(cor(owner), d=2)
+corrplot::corrplot(corMat, diag = F, type = "upper")
+
+```
+
+The correlation plot helps to understand the dependency between variables. It can be seen that 'year' and 'mileage' have opposite correlation coefficient. Indeed, earlier year of the car release matches more mileage. On the other hand, the 'price' cannot be predicted fully by 'year' and 'mileage'. Also it can be explained by appearance of retro cars, when the price is high for the old vehicle. The earliest year of car is `r min(drom$year)`.
+
+
+
+## Applications` trends
+
+The data is diverse, many features are skewed to some preferences, the price depends not always directly on characteristics, but also on the status of the cars. 
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.width=4,fig.height=2.6}
+
+top_model<-drom %>% group_by(model) %>% tally() %>% arrange(desc(n)) %>% slice(1:7) 
+top_firms<-c("Ford", "Hyundai", "Volkswagen", "Kia", "Renault", "Toyota", "Opel")
+
+top_model <- add_column(top_model, top_firms, .after = 0)
+
+```
+The most popular model is `r top_model[1, 2]` of `r top_model[1, 1]`: `r top_model[1, 3]` items. 
+
+
+The four common features for buyers are drive, transmission, steering wheel and fuel types. They are categorical values and may show customer preferences.
+
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.height=2.6}
+
+customer<-drom %>% select(drive,transmission, steering_wheel, fuel_type) %>% mutate(counter=1)
+
+customer_transmission<-ggplot(customer, aes(reorder(drive, -counter), counter, fill = transmission))+
+  geom_bar(position = "stack",stat = "identity") + xlab("Drive")+labs(title="transmission", fill=" ")+
+  theme(legend.position = c(0.9, 0.7), legend.key.size = unit(0.2, 'cm'), legend.text=element_text(size=7))
+customer_wheel<-ggplot(customer, aes(reorder(drive, -counter), counter, fill = steering_wheel))+
+  geom_bar(position = "stack",stat = "identity") + xlab("Drive")+labs(title="steering wheel", fill=" ")+
+  theme(legend.position = c(0.9, 0.8), legend.key.size = unit(0.2, 'cm'), legend.text=element_text(size=7))
+customer_fuel<-ggplot(customer, aes(reorder(drive, -counter), counter, fill = fuel_type))+
+  geom_bar(position = "stack",stat = "identity") + xlab("Drive")+labs(title="fuel type", fill=" ")+
+  theme(legend.position = c(0.9, 0.7), legend.key.size = unit(0.2, 'cm'), legend.text=element_text(size=7))
+plot_by_reg<-gridExtra::grid.arrange(customer_transmission, customer_wheel, customer_fuel, ncol=3,top = textGrob("Drive combination with"))
+
+```
+
+
+The transmission types on drives are diverse, therefore it is hard to say what is the most popular. Nonetheless, some of them are more frequent. The domination of the left side steering wheel is shown on the middle graph. The gasoline is more usual fuel type.
+
+The dataset analysis revealed the observation of applications, preferences. But what eventually defines the price and why even used cars cost expensive? Based on data the model will be design to understand how the price is predicted. Let me consider it closely at the next section.
+
+## Price definition
+
+### New data creation
+After data analysis and plots there is still a question: How price is defined? It was decided to investigate the most expensive cars and realize, how the cost is built. The most expensive cars, namely the price >50 000 euro,  were selected for further analysis.
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.width=4,fig.height=2.6}
+
+focus<- drom %>% filter(price_euro>50000) %>% select(firm,model,drive,frame_type,generation_number, year,restyling_number, mileage,transmission,engine_power, steering_wheel, fuel_type, volume, ownership_periods, price_euro)
+
+```
+
+New table has `r nrow(focus)` rows and diverse from initial one: now the steering wheel is only at the left, the drive is 4WD, except one FF.
+
+In order to understand the price distribution the plot by variable 'firm' was created.
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.width=5,fig.height=3.5}
+
+price_firm_plot<-ggplot(data = focus, aes(x = firm, y = price_euro)) + geom_point(shape = 23, fill = "#1540A1", size = 2)+
+  theme(axis.text.x = element_text(angle = -90))+ ylab("price, euro")+labs(title="Price distribution by firm")
+price_firm_plot
+```
+
+We can see one outlier: it is Lamborghini, even all other cars cost below 20 thousand euros.
+
+
+### Model design
+
+Categorical explanatory variables, not normally distributed data lead us to use mixed effect models to predict the car price.
+The main idea is to find the best model, which can forecast the final price based on definite characteristics. Models are compared by AIC.
+
+At first, only firms and models of cars were taken into consideration.
+
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.width=4,fig.height=2.6}
+
+model_f<- lm(focus$price_euro~focus$firm)
+#summary(model_f)
+#AIC(model_f)
+model_m<- lm(focus$price_euro~focus$model)
+#summary(model_m)
+#AIC(model_m)
+
+```
+The firm and model influence a lot on the decision of the price. But it is not always the case, because the cost also depends on the conditions and features. The mixed models with 'firm' and 'model' have quite high AICs: `r round(AIC(model_f), d=2)`, `r round(AIC(model_m), d=2)`.
+Now we can restrict the model for other variables.
+
+The initial model contains all the variables without interactions. We can see by value, which predictors we can save for further work.
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.width=4,fig.height=2.6}
+
+model0<- lm(focus$price_euro~focus$frame_type + focus$fuel_type + focus$transmission + focus$mileage + focus$engine_power  + focus$generation_number + focus$volume + focus$year + focus$ownership_periods + focus$restyling_number)
+#summary(model0)
+#AIC(model0)
+
+```
+The summary of this and follows models are presented at the Appendix.
+
+*Initial model*
+
+AIC of initial model is `r round(AIC(model0), d=2)`. Mileage, engine power,  generation number, year and ownership periods need to be included at this step. Also type of fuel influences on the price. Now we simplify the model.
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.width=4,fig.height=2.6}
+
+model1<- lm(focus$price_euro~focus$fuel_type + focus$mileage + focus$engine_power  + focus$generation_number + focus$year + focus$ownership_periods)
+#summary(model1)
+#AIC(model1)
+
+```
+
+*1st model*
+
+AIC of the 1st model is `r round(AIC(model1), d=2)`. Ownership periods at this step don`t have enough weight anymore. We can exclude it.
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.width=4,fig.height=2.6}
+
+model2<- lm(focus$price_euro~focus$fuel_type + focus$mileage + focus$engine_power  + focus$generation_number + focus$year)
+#summary(model2)
+#AIC(model2)
+
+
+```
+
+*2nd model*
+
+AIC of the 2nd model is `r round(AIC(model2), d=2)`. Now we have only 5 variables, therefore we may create interactions, excluding more than 2. 
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.width=4,fig.height=2.6}
+
+model3<- lm(focus$price_euro~(focus$fuel_type + focus$mileage + focus$engine_power  + focus$generation_number + focus$year)^2)
+#summary(model3)
+#AIC(model3)
+
+```
+
+*3rd model*
+
+AIC of the 3rd model is `r round(AIC(model3), d=2)`. We can exclude the fuel type from the model.
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.width=4,fig.height=2.6}
+
+model4<- lm(focus$price_euro~(focus$mileage + focus$engine_power + focus$generation_number + focus$year)^2)
+#summary(model4)
+#AIC(model4)
+
+```
+
+*4th model*
+
+AIC of the 3rd model is `r round(AIC(model4), d=2)`. We can see that AIC became higher, therefore, it is better to modify the previous model. Thus, all 5 variables 'mileage', 'engine power',  'generation number', 'year' and 'fuel type' will be at the model and several interactions, which had significant impact will be added to the 5th model.
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T, fig.width=4,fig.height=2.6}
+
+model5<- lm(focus$price_euro~focus$fuel_type + focus$mileage + focus$engine_power  + focus$generation_number + focus$year + focus$mileage:focus$engine_power + focus$mileage:focus$year + focus$engine_power:focus$year)
+#summary(model5)
+#AIC(model5)
+
+```
+
+*5th model*
+
+AIC of the 3rd model is `r round(AIC(model5), d=2)`. AIC of this model is the lowest and all terms are significant (mileage and engine power, mileage and year, engine power and year). We can stop here and choose this model, that explains the car price in best way.
+
+# Conclusion
+
+At this report the data from website of used car applications has been explored. The analysis showed the most frequent combinations of features, popular models, price distribution. For the price policy of most expensive cars understanding the model has been found. The initial model contained all the variables and later has been simplified. The most appropriate model has been chosen by AIC and less number of variables. Thus, the 'mileage', 'engine power',  'generation number', 'year' and 'fuel type' are more significant in prediction the price of most expensive cars.
+
+\newpage
+
+# Appendix
+
+## Models` summaries
+
+### Initial model
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T}
+
+summary(model0)
+
+```
+
+\newpage
+### 1st model
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T}
+
+summary(model1)
+
+```
+
+\newpage
+### 2nd model
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T}
+
+summary(model2)
+
+```
+
+\newpage
+### 3rd model
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T}
+
+summary(model3)
+
+```
+
+\newpage
+### 4th model
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T}
+
+summary(model4)
+
+```
+
+\newpage
+### 5th model
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval = T}
+
+summary(model5)
+
+```
+
+
+
