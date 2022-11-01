@@ -1,0 +1,4 @@
+MOOCs (Massive Open Online Courses) overview
+ 
+The questions of the survey have been created due to the information, received from the sources and observing the educational online platforms.The tool for survey is Google forms. The data from the survey has been transformed to the *.xlsx file and this table later has been used at the Microsoft Power BI.
+Power BI dashboard visualizes the main points of the survey and gives the understanding about the advantages and disadvantages of MOOCs from the learners` side, users` attitude, aims, requests and so forth.
