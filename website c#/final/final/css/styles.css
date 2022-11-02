@@ -1,0 +1,146 @@
+@import url('styles.css');
+.main{
+    margin-right: 5%;
+    margin-left: 5%;
+    text-align: center;
+    padding-bottom: 200px;
+    background: rgba(80, 3, 80, .1);
+}
+h1{
+    font-size: 100px;
+    font-family: 'Archivo Black', sans-serif;
+    color: rgb(243, 228, 166);
+    background-color: rgb(80, 3, 80);
+    background-size: 100;
+    text-align: center;
+    padding-top: 30;
+    padding-bottom: 30;
+    
+}
+h2{
+    font-size: 80px;
+    font-family: 'Archivo Black', sans-serif;
+    color: rgb(80, 3, 80);
+    
+}
+h3 {
+    color: rgb(27, 1, 27);
+    
+
+}
+h4 {
+    font-size: 50px;
+    color: rgb(0, 0, 0);
+    
+}
+ul {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+    margin-top:25;
+    height: 50;
+  }
+a {
+    text-decoration: none;
+    color: rgb(80, 3, 80);
+    padding: 0 15;
+    line-height:50px;
+    display: block; 
+    border-left: 1px solid rgba(80, 3, 80, 0.4);
+
+}
+li {
+    float:right;
+ }
+
+.logo {
+    width: 60%;
+    height: 60%;
+}
+ .news{
+    border-radius: 10%;
+    width: 100%;
+ }
+.enter {
+    margin-top: 20;
+    margin-right: 10;
+    width: 100px; 
+    height:50px;
+    background-color: rgb(80, 3, 80);
+    font-family: 'Archivo Black', sans-serif;
+    color: rgb(243, 228, 166);
+}
+.tablebut {
+    width: 65;
+    height: 50;
+    background-color: rgb(243, 228, 166);
+    color:rgb(80, 3, 80);
+    border: 0;
+    font-family: 'Archivo Black', sans-serif;
+}
+.cancel {
+    margin-top: 50;
+    width: 150px; 
+    height:30px;
+    color: rgb(80, 3, 80);
+    font-family: 'Archivo Black', sans-serif;
+    background-color: rgba(80, 3, 80, .2);
+}
+.bsignout {
+    width: 60px;
+    height: 60px;
+    color: rgb(80, 3, 80);
+    font-family: 'Archivo Black', sans-serif;
+    background-color: rgba(80, 3, 80, .2);
+}
+.pAbout {
+    font-size: 22px;
+}
+.shop {
+    height: 300px;
+    padding: 10%;
+}
+.logo_anim {
+    animation-duration: 1s;
+    animation-name: pulse;
+    animation-iteration-count: infinite;
+ }
+.sign_anim {
+    animation-duration: 6s;
+    animation-iteration-count: infinite;
+    animation-name: flash;
+ }
+ @keyframes flash {
+    0%{
+        opacity: 0;
+      }
+    
+      30% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+  }
+ .butshopanim {
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-name: wobble;
+ }
+ @keyframes wobble {
+    0%{
+        opacity: 0;
+      }
+    
+      30% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+  }
+  
+  @media only screen and (max-width: 1024px) and (orientation: portrait) {
+    .logo { width: 40%; }
+    .news {width: 40%;}
+  }
