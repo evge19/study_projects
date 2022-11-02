@@ -1,0 +1,5 @@
+﻿<asp:Button runat="server"
+Font-Bold="True"
+BackColor="#CEB8CE"
+
+ForeColor="#500350" />
